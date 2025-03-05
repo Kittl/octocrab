@@ -264,10 +264,15 @@ fn get_links(headers: &http::header::HeaderMap) -> crate::Result<HeaderLinks> {
                             "prev" => prev = Some(Uri::from_str(url).context(UriSnafu)?),
                             "next" => next = Some(Uri::from_str(url).context(UriSnafu)?),
                             "last" => last = Some(Uri::from_str(url).context(UriSnafu)?),
-                            other => print!(
-                                "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
-                                other
-                            ),
+                            other => {
+                                #[cfg(feature = "tracing")]
+                                tracing::warn!(
+                                    "INFO: Received unexpected 'rel' attribute in 'Link' header: \"{}\"",
+                                    other
+                                );
+
+                                ()
+                            }
                         }
                     }
                 }
